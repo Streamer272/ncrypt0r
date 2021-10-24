@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use std::borrow::BorrowMut;
+use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::fs::{OpenOptions, File};
 use std::io::{Read, Write};
@@ -38,8 +39,6 @@ impl Encryptor {
         let hash = &hasher.finalize();
 
         return *hash.as_ref();
-
-        //*slice_as_array!(hash, [u8; 32]).unwrap()
     }
 
     fn add_extension(core: &mut PathBuf, extension: impl AsRef<Path>) {
@@ -75,6 +74,8 @@ impl Encryptor {
     }
     
     pub fn encrypt_file(&self, file_path: &mut PathBuf) {
+
+        println!("{} {}", Colour::Green.paint("Encrypting file:"), Colour::Blue.paint(file_path.display().to_string()));
     
         let mut file_from = OpenOptions::new()
                         .read(true)
@@ -100,6 +101,8 @@ impl Encryptor {
     }
     
     pub fn decrypt_file(&self, file_path: &PathBuf) {
+
+        println!("{} {}", Colour::Green.paint("Decrypting file:"), Colour::Blue.paint(file_path.display().to_string()));
     
         let mut file_from = OpenOptions::new()
                         .read(true)
@@ -131,6 +134,11 @@ impl Encryptor {
             
             // This skips all directories
             if entry.file_type().is_dir() {
+                continue;
+            }
+
+            // Checks if the file is allready encrypted, then skips it
+            if entry.path().extension() == Some(OsStr::new("m3")) {
                 continue;
             }
     
